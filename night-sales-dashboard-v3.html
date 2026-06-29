@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Night Sales Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#16181d;
+  --muted:#8a8f98;
+  --hair:#eceef1;
+  --paper:#ffffff;
+  --bg:#eceef1;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);
+  display:flex;justify-content:center;
+  padding:16px;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+.root{width:100%;max-width:390px;}
+
+/* ── CAPTURE CARD (everything inside downloads as the image) ── */
+.shot{background:var(--bg);border-radius:20px;}
+
+/* ── HEADER ── */
+.header{
+  position:relative;
+  border-radius:18px;
+  padding:18px 18px 20px;
+  margin-bottom:10px;
+  overflow:hidden;
+  transition:background 0.4s ease;
+}
+.header::after{
+  content:"";position:absolute;right:-30px;top:-30px;
+  width:150px;height:150px;border-radius:50%;
+  background:rgba(255,255,255,0.07);
+}
+.venue{
+  font-size:11px;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;opacity:0.85;display:flex;align-items:center;gap:6px;
+}
+.venue .vdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.9);}
+.date-line{font-size:15px;font-weight:600;color:#fff;margin-top:8px;opacity:0.95;}
+.day-pill{
+  display:inline-block;font-size:10px;padding:3px 11px;border-radius:20px;
+  margin-top:9px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;
+}
+
+/* hero night sale inside header */
+.hero{margin-top:16px;}
+.hero-lbl{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.7);}
+.hero-val{font-size:40px;font-weight:700;color:#fff;line-height:1.05;margin-top:3px;letter-spacing:-0.02em;}
+.hero-val .cur{font-size:17px;font-weight:600;opacity:0.7;margin-right:5px;vertical-align:6px;}
+.hero-sub{font-size:11px;color:rgba(255,255,255,0.78);margin-top:6px;}
+
+/* ── METRIC CARDS ── */
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:7px;}
+.card{
+  background:var(--paper);border:1px solid var(--hair);
+  border-radius:13px;padding:11px 12px;
+}
+.card .lbl{font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.card .val{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-0.01em;line-height:1;}
+.card .sub{font-size:9.5px;margin-top:4px;color:var(--muted);font-weight:500;}
+.card .val .unit{font-size:10px;font-weight:600;color:var(--muted);margin-right:2px;}
+
+/* ── SECTION LABELS ── */
+.sec{
+  font-size:10px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.1em;
+  margin:14px 2px 7px;display:flex;align-items:center;justify-content:space-between;
+}
+.sec .sec-note{font-weight:500;text-transform:none;letter-spacing:0;color:#aab0b8;font-size:9.5px;}
+
+/* ── REVENUE PANEL ── */
+.panel{background:var(--paper);border:1px solid var(--hair);border-radius:14px;padding:12px 14px;margin-bottom:7px;}
+.brow{display:flex;align-items:center;padding:7px 0;}
+.brow + .brow{border-top:1px solid var(--hair);}
+.bcat{color:var(--ink);font-size:12px;font-weight:500;flex:0 0 92px;}
+.btrack{flex:1;height:7px;border-radius:4px;background:#f3f4f6;margin:0 10px;overflow:hidden;}
+.bfill{height:100%;border-radius:4px;transition:width 0.5s ease;}
+.bval{font-weight:700;color:var(--ink);font-size:12px;min-width:62px;text-align:right;letter-spacing:-0.01em;}
+.disclaimer{
+  font-size:10px;color:#aab0b8;margin-top:9px;padding-top:9px;
+  border-top:1px dashed var(--hair);display:flex;align-items:center;gap:5px;font-style:italic;
+}
+
+/* ── PAYMENTS + MTD ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:7px;align-items:start;}
+.prow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;}
+.prow + .prow{border-top:1px solid var(--hair);}
+.pcat{color:var(--ink);font-weight:500;}
+.pval{font-weight:700;color:var(--ink);letter-spacing:-0.01em;}
+.pdot{width:7px;height:7px;border-radius:50%;margin-right:7px;flex-shrink:0;}
+.prow-inner{display:flex;align-items:center;min-width:0;}
+.prow-inner .pcat{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+.mtd-panel{background:var(--paper);border:1px solid var(--hair);border-radius:14px;padding:13px 14px;}
+.mtd-big{font-size:26px;font-weight:700;color:var(--ink);line-height:1;letter-spacing:-0.02em;}
+.mtd-cap{font-size:10px;color:var(--muted);margin:5px 0 10px;font-weight:500;}
+.mtd-track{height:7px;background:#f3f4f6;border-radius:4px;overflow:hidden;}
+.mtd-fill{height:100%;border-radius:4px;width:0%;transition:width 0.6s ease;}
+.mtd-foot{margin-top:11px;border-top:1px solid var(--hair);padding-top:9px;}
+.mtd-foot .k{font-size:9.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;}
+.mtd-foot .v{font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;}
+
+.empty{font-size:12px;color:#c4c8ce;padding:6px 0;}
+
+/* ── CONTROLS (not captured in image) ── */
+.controls{margin-top:16px;}
+.paste-wrap{border-top:1px solid var(--hair);padding-top:14px;}
+.paste-wrap textarea{
+  width:100%;min-height:120px;resize:vertical;font-size:11px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  padding:11px;border-radius:11px;border:1px solid #dfe2e6;outline:none;color:#333;
+  background:#fafbfc;line-height:1.5;
+}
+.paste-wrap textarea:focus{border-color:var(--ink);background:#fff;}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px;}
+.btn{
+  font-size:13px;padding:11px;border-radius:11px;border:none;cursor:pointer;
+  font-weight:600;transition:transform 0.08s ease,opacity 0.2s;
+}
+.btn:active{transform:scale(0.98);}
+.btn-primary{color:#fff;background:#16181d;}
+.btn-share{color:#16181d;background:#fff;border:1.5px solid #16181d;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-share:disabled{opacity:0.4;cursor:not-allowed;}
+.msg{font-size:11px;margin-top:9px;text-align:center;min-height:14px;}
+.ok{color:#0F6E56;}.er{color:#A32D2D;}
+
+.legend{margin-top:14px;padding:11px 13px;background:#fff;border-radius:12px;border:1px solid var(--hair);}
+.legend-h{font-size:9.5px;font-weight:700;color:#b0b5bc;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:9px;}
+.legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.legend-item{display:flex;align-items:center;font-size:11px;color:#555;}
+.legend-item .ld{width:10px;height:10px;border-radius:50%;margin-right:7px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="root">
+
+  <!-- Everything inside .shot is captured for the downloadable image -->
+  <div class="shot" id="shot">
+    <div class="header" id="header-bar">
+      <div class="venue" id="venue-name"><span class="vdot"></span><span id="venue-text">—</span></div>
+      <div class="date-line" id="date-disp">Paste a report to begin</div>
+      <span class="day-pill" id="day-disp">—</span>
+
+      <div class="hero">
+        <div class="hero-lbl">Night sale</div>
+        <div class="hero-val"><span class="cur">AED</span><span id="m-sale">—</span></div>
+        <div class="hero-sub" id="hero-sub">&nbsp;</div>
+      </div>
+    </div>
+
+    <div class="g3">
+      <div class="card">
+        <div class="lbl">MTD sale</div>
+        <div class="val"><span class="unit">AED</span><span id="m-mtd">—</span></div>
+        <div class="sub">month to date</div>
+      </div>
+      <div class="card">
+        <div class="lbl">Cash in hand</div>
+        <div class="val"><span class="unit">AED</span><span id="m-cash">—</span></div>
+        <div class="sub">tonight</div>
+      </div>
+      <div class="card">
+        <div class="lbl">Pax</div>
+        <div class="val" id="m-pax">—</div>
+        <div class="sub">AED <span id="m-avg">—</span>/cover</div>
+      </div>
+    </div>
+
+    <div class="sec">Revenue breakdown</div>
+    <div class="panel" id="rev-panel"><div class="empty">No data yet</div></div>
+
+    <div class="g2">
+      <div>
+        <div class="sec">Payments</div>
+        <div class="panel" id="pay-panel"><div class="empty">No data yet</div></div>
+      </div>
+      <div>
+        <div class="sec">Tonight vs month</div>
+        <div class="mtd-panel">
+          <div class="mtd-big" id="mtd-pct-val">—</div>
+          <div class="mtd-cap">of month-to-date</div>
+          <div class="mtd-track"><div class="mtd-fill" id="mtd-bar"></div></div>
+          <div class="mtd-foot">
+            <div class="k">Top category</div>
+            <div class="v" id="best-cat">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /shot -->
+
+  <div class="controls">
+    <div class="paste-wrap">
+      <div class="sec" style="margin-top:0;">Paste tonight's report</div>
+      <textarea id="paste-in" placeholder="Paste the nightly WhatsApp report here — venue, date and all figures update automatically."></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="parseAndUpdate()">Update dashboard</button>
+        <button class="btn btn-share" id="share-btn" onclick="downloadImage()" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Save image
+        </button>
+      </div>
+      <div class="msg" id="pmsg"></div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-h">Venue colour guide</div>
+      <div class="legend-grid">
+        <div class="legend-item"><span class="ld" style="background:#C84B0C;"></span>B&amp;CO — Orange</div>
+        <div class="legend-item"><span class="ld" style="background:#6B3D2E;"></span>Pahadi — Brown</div>
+        <div class="legend-item"><span class="ld" style="background:#B91C1C;"></span>TBSE — Red</div>
+        <div class="legend-item"><span class="ld" style="background:#166534;"></span>Jodhpur — Green</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── Venue theme map ──────────────────────────────────────────────
+const VENUE_THEMES = [
+  { keys:["b&co","b & co","bnco","b and co","bco"], header:"#C84B0C", headerDark:"#9A3608", pill:"rgba(0,0,0,0.22)", pillText:"#FFD9C4", bar:"#E8722A" },
+  { keys:["pahadi"],                                  header:"#6B3D2E", headerDark:"#4D2B20", pill:"rgba(0,0,0,0.22)", pillText:"#E5CFC2", bar:"#8B5E4E" },
+  { keys:["tbse","tiger bar stock exchange","tiger bar","tiger stock"], header:"#B91C1C", headerDark:"#881414", pill:"rgba(0,0,0,0.22)", pillText:"#FFC9C9", bar:"#DC2626" },
+  { keys:["jodhpur"],                                 header:"#166534", headerDark:"#0F4424", pill:"rgba(0,0,0,0.22)", pillText:"#C3F5C6", bar:"#16A34A" }
+];
+const DEFAULT_THEME = { header:"#185FA5", headerDark:"#0C447C", pill:"rgba(0,0,0,0.2)", pillText:"#CFE3F7", bar:"#378ADD" };
+
+function getTheme(venueName){
+  const lc = (venueName||"").toLowerCase();
+  for (const t of VENUE_THEMES){ if (t.keys.some(k=>lc.includes(k))) return t; }
+  return DEFAULT_THEME;
+}
+
+// ─── State ────────────────────────────────────────────────────────
+const S = {
+  venue:"", date:"", day:"",
+  sale:0, mtd:0, cash:0, pax:0, avg:0,
+  food:0, bev:0, shisha:0, show:0, product:0, events:0, city:0,
+  cc:0, pcash:0, cl:0, zomato:0, talabat:0, online:0, adv:0
+};
+
+let hasData = false;
+
+function aed(n){ return n.toLocaleString("en-AE",{minimumFractionDigits:0,maximumFractionDigits:0}); }
+
+function applyTheme(theme){
+  const hdr = document.getElementById("header-bar");
+  hdr.style.background = `linear-gradient(140deg, ${theme.header} 0%, ${theme.headerDark} 100%)`;
+  const pill = document.getElementById("day-disp");
+  pill.style.background = theme.pill;
+  pill.style.color = theme.pillText;
+  document.getElementById("venue-name").style.color = theme.pillText;
+  document.getElementById("mtd-bar").style.background = theme.bar;
+}
+
+function render(){
+  const theme = getTheme(S.venue);
+  applyTheme(theme);
+
+  document.getElementById("venue-text").textContent = S.venue || "Unknown venue";
+  document.getElementById("date-disp").textContent = S.date || "—";
+  document.getElementById("day-disp").textContent = S.day || "—";
+  document.getElementById("m-sale").textContent = S.sale ? aed(S.sale) : "—";
+  document.getElementById("m-mtd").textContent = S.mtd ? aed(S.mtd) : "—";
+  document.getElementById("m-cash").textContent = S.cash ? aed(S.cash) : "—";
+  document.getElementById("m-pax").textContent = S.pax || "—";
+  document.getElementById("m-avg").textContent = S.avg ? S.avg.toFixed(0) : "—";
+
+  // hero sub: pax + avg cover summary
+  const heroSub = document.getElementById("hero-sub");
+  if (S.pax) heroSub.textContent = `${S.pax} covers · AED ${S.avg ? S.avg.toFixed(0) : "—"} avg`;
+  else heroSub.innerHTML = "&nbsp;";
+
+  const pct = S.mtd > 0 ? ((S.sale / S.mtd) * 100) : 0;
+  document.getElementById("mtd-pct-val").textContent = S.mtd ? pct.toFixed(1) + "%" : "—";
+  document.getElementById("mtd-bar").style.width = Math.min(pct,100) + "%";
+
+  // Revenue breakdown — each bar tinted with the venue colour, fading by rank
+  const revItems = [
+    {l:"Beverage",v:S.bev},{l:"Food",v:S.food},{l:"Shisha & tob",v:S.shisha},
+    {l:"Product",v:S.product},{l:"Show",v:S.show},{l:"Events",v:S.events},{l:"City ledger",v:S.city}
+  ].filter(i=>i.v>0).sort((a,b)=>b.v-a.v);
+
+  document.getElementById("best-cat").textContent = revItems[0] ? revItems[0].l : "—";
+  const maxR = Math.max(...revItems.map(i=>i.v),1);
+  const revHTML = revItems.map((i,idx)=>{
+    const op = (1 - idx*0.12).toFixed(2);  // strongest for top earner, fading down
+    return `<div class="brow">
+      <span class="bcat">${i.l}</span>
+      <div class="btrack"><div class="bfill" style="width:${(i.v/maxR*100).toFixed(1)}%;background:${theme.bar};opacity:${op};"></div></div>
+      <span class="bval">${aed(i.v)}</span>
+    </div>`;
+  }).join("");
+  document.getElementById("rev-panel").innerHTML =
+    (revHTML || `<div class="empty">No revenue data</div>`) +
+    `<div class="disclaimer">
+       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+       All revenue figures are inclusive of taxes
+     </div>`;
+
+  // Payments
+  const payDots = ["#378ADD","#1D9E75","#D85A30","#D4537E","#7F77DD","#888780","#BA7517"];
+  const payItems = [
+    {l:"Credit card",v:S.cc},{l:"Cash",v:S.pcash},{l:"Zomato",v:S.zomato},
+    {l:"Talabat",v:S.talabat},{l:"Online pmt",v:S.online},{l:"CL & staff",v:S.cl},{l:"Advance",v:S.adv}
+  ].filter(i=>i.v>0);
+  document.getElementById("pay-panel").innerHTML = payItems.map((i,idx)=>`
+    <div class="prow">
+      <div class="prow-inner"><div class="pdot" style="background:${payDots[idx%payDots.length]};"></div><span class="pcat">${i.l}</span></div>
+      <span class="pval">${aed(i.v)}</span>
+    </div>`).join("") || `<div class="empty">No data</div>`;
+}
+
+function pv(line){
+  const m = line.match(/AED\s*([\d,]+\.?\d*)/i);
+  return m ? parseFloat(m[1].replace(/,/g,"")) : null;
+}
+
+function parseAndUpdate(){
+  const raw = document.getElementById("paste-in").value.trim();
+  const msg = document.getElementById("pmsg");
+  if(!raw){ msg.className="msg er"; msg.textContent="Nothing pasted yet."; return; }
+
+  const lines = raw.split("\n").map(l=>l.trim()).filter(Boolean);
+
+  const dateM = raw.match(/(\d{1,2}\s+\w+\s+\d{4})\s*[-–]\s*(\w+)/);
+  if(dateM){ S.date=dateM[1]; S.day=dateM[2]; }
+
+  const venueM = raw.match(/\d{4}\s*[-–]\s*\w+\s*[-–]\s*(.+)/);
+  if(venueM && venueM[1] && venueM[1].trim().length>1){ S.venue=venueM[1].trim(); }
+
+  const map = {
+    sale:/^sale:/i, mtd:/^sale mtd:/i, cash:/^cash in hand:/i,
+    food:/^food:/i, bev:/^beverage:/i, shisha:/^shisha/i, show:/^show:/i,
+    product:/^product/i, events:/^events?:/i, city:/^city ledger/i,
+    pcash:/^cash:/i, cc:/^cc:/i, cl:/^cl\s*&/i, zomato:/^zomato:/i,
+    talabat:/^talabat:/i, online:/^online pmt:/i, adv:/^adv received:/i
+  };
+
+  let n=0;
+  for(const line of lines){
+    for(const [k,rx] of Object.entries(map)){
+      if(rx.test(line)){ const v=pv(line); if(v!==null){ S[k]=v; n++; break; } }
+    }
+    const pm=line.match(/^pax:\s*(\d+)/i); if(pm){ S.pax=parseInt(pm[1]); n++; }
+    const am=line.match(/^average per cover:\s*([\d.]+)/i); if(am){ S.avg=parseFloat(am[1]); n++; }
+  }
+
+  if(n<3){ msg.className="msg er"; msg.textContent="Couldn't read that format. Check the report layout."; return; }
+
+  render();
+  hasData = true;
+  document.getElementById("share-btn").disabled = false;
+  msg.className="msg ok";
+  msg.textContent=`Updated — ${n} fields read · ${S.venue||"venue"}`;
+  setTimeout(()=>{ msg.textContent=""; },4000);
+}
+
+// ─── Image download + open ────────────────────────────────────────
+function downloadImage(){
+  if(!hasData) return;
+  const msg = document.getElementById("pmsg");
+  msg.className="msg"; msg.textContent="Preparing image…";
+  const node = document.getElementById("shot");
+  html2canvas(node,{backgroundColor:"#eceef1",scale:3,useCORS:true}).then(canvas=>{
+    canvas.toBlob(function(blob){
+      const url = URL.createObjectURL(blob);
+      const safeVenue = (S.venue||"venue").replace(/[^a-z0-9]/gi,"_");
+      const safeDate = (S.date||"").replace(/\s+/g,"-") || new Date().toISOString().slice(0,10);
+      // Download
+      const a = document.createElement("a");
+      a.href = url; a.download = `${safeVenue}_${safeDate}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      // Open in a new tab so it can be shared/saved directly
+      window.open(url, "_blank");
+      msg.className="msg ok"; msg.textContent="Image saved and opened.";
+      setTimeout(()=>{ msg.textContent=""; URL.revokeObjectURL(url); },6000);
+    }, "image/png");
+  }).catch(err=>{
+    msg.className="msg er"; msg.textContent="Couldn't make the image. Try again.";
+    console.error(err);
+  });
+}
+
+applyTheme(DEFAULT_THEME);
+</script>
+</body>
+</html>
