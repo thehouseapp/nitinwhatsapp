@@ -248,7 +248,8 @@ const S = {
   venue:"", date:"", day:"",
   sale:0, mtd:0, cash:0, pax:0, avg:0,
   food:0, bev:0, shisha:0, show:0, product:0, events:0, city:0,
-  cc:0, pcash:0, cl:0, zomato:0, talabat:0, online:0, adv:0
+  cc:0, pcash:0, cl:0, zomato:0, talabat:0, online:0, adv:0,
+  qlub:0, careem:0, noon:0
 };
 
 let hasData = false;
@@ -311,9 +312,10 @@ function render(){
      </div>`;
 
   // Payments
-  const payDots = ["#378ADD","#1D9E75","#D85A30","#D4537E","#7F77DD","#888780","#BA7517"];
+  const payDots = ["#378ADD","#1D9E75","#D85A30","#D4537E","#7F77DD","#888780","#BA7517","#3FB6B6","#C0497B","#6A8E2C"];
   const payItems = [
-    {l:"Credit card",v:S.cc},{l:"Cash",v:S.pcash},{l:"Zomato",v:S.zomato},
+    {l:"Credit card",v:S.cc},{l:"Cash",v:S.pcash},{l:"QLUB",v:S.qlub},
+    {l:"Zomato",v:S.zomato},{l:"Careem",v:S.careem},{l:"Noon",v:S.noon},
     {l:"Talabat",v:S.talabat},{l:"Online pmt",v:S.online},{l:"CL & staff",v:S.cl},{l:"Advance",v:S.adv}
   ].filter(i=>i.v>0);
   document.getElementById("pay-panel").innerHTML = payItems.map((i,idx)=>`
@@ -329,7 +331,8 @@ function pv(line){
 }
 
 function parseAndUpdate(){
-  const raw = document.getElementById("paste-in").value.trim();
+  // Strip WhatsApp bold markers (*) anywhere in the pasted text before parsing.
+  const raw = document.getElementById("paste-in").value.replace(/\*/g, "").trim();
   const msg = document.getElementById("pmsg");
   if(!raw){ msg.className="msg er"; msg.textContent="Nothing pasted yet."; return; }
 
@@ -341,22 +344,39 @@ function parseAndUpdate(){
   const venueM = raw.match(/\d{4}\s*[-–]\s*\w+\s*[-–]\s*(.+)/);
   if(venueM && venueM[1] && venueM[1].trim().length>1){ S.venue=venueM[1].trim(); }
 
+  // Patterns are tested against the LABEL (the text before the AED amount),
+  // not the whole line — so glued payment rows like "CCAED 24,657.05" work the
+  // same as colon rows like "Sale: AED 41,373.90".
   const map = {
-    sale:/^sale:/i, mtd:/^sale mtd:/i, cash:/^cash in hand:/i,
-    food:/^food:/i, bev:/^beverage:/i, shisha:/^shisha/i, show:/^show:/i,
-    product:/^product/i, events:/^events?:/i, city:/^city ledger/i,
-    pcash:/^cash:/i, cc:/^cc:/i, cl:/^cl\s*&/i, zomato:/^zomato:/i,
-    talabat:/^talabat:/i, online:/^online pmt:/i, adv:/^adv received:/i
+    mtd:/^sale\s*mtd$/i, sale:/^sale$/i, cash:/^cash in hand$/i,
+    food:/^food$/i, bev:/^beverage$/i, shisha:/^shisha/i, show:/^show$/i,
+    product:/^product/i, events:/^events?$/i, city:/^city ledger/i,
+    pcash:/^cash$/i, cc:/^cc$/i, cl:/^cl\s*&/i, zomato:/^zomato$/i,
+    talabat:/^talabat$/i, online:/^online\s*pmt$/i, adv:/^adv/i,
+    qlub:/^qlub$/i, careem:/^careem$/i, noon:/^noon$/i
   };
+
+  // Strip the "AED <amount>" tail and any trailing colon to isolate the label.
+  const labelOf = (line) =>
+    line.replace(/\s*:?\s*AED\s*[\d,]+\.?\d*.*$/i, "").replace(/[:\s]+$/, "").trim();
 
   let n=0;
   for(const line of lines){
-    for(const [k,rx] of Object.entries(map)){
-      if(rx.test(line)){ const v=pv(line); if(v!==null){ S[k]=v; n++; break; } }
+    if(/AED/i.test(line)){
+      const label = labelOf(line);
+      for(const [k,rx] of Object.entries(map)){
+        if(rx.test(label)){ const v=pv(line); if(v!==null){ S[k]=v; n++; break; } }
+      }
     }
-    const pm=line.match(/^pax:\s*(\d+)/i); if(pm){ S.pax=parseInt(pm[1]); n++; }
-    const am=line.match(/^average per cover:\s*([\d.]+)/i); if(am){ S.avg=parseFloat(am[1]); n++; }
+    const pm=line.match(/^pax:\s*([\d,]+)/i); if(pm){ S.pax=parseInt(pm[1].replace(/,/g,"")); n++; }
+    // Average per cover — supports both "Average per cover: X" and "APC:X".
+    const am=line.match(/^(?:average per cover|apc)\s*:?\s*(-?[\d.]+)/i);
+    if(am){ S.avg=parseFloat(am[1]); n++; }
   }
+
+  // APC sometimes arrives signed/garbled; derive a clean per-cover figure
+  // from the day's sale and covers when both are present.
+  if(S.pax>0 && S.sale>0){ S.avg = S.sale / S.pax; }
 
   if(n<3){ msg.className="msg er"; msg.textContent="Couldn't read that format. Check the report layout."; return; }
 
