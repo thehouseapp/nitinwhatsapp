@@ -101,15 +101,6 @@ body{
 .prow-inner{display:flex;align-items:center;min-width:0;}
 .prow-inner .pcat{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-.mtd-panel{background:var(--paper);border:1px solid var(--hair);border-radius:14px;padding:13px 14px;}
-.mtd-big{font-size:26px;font-weight:700;color:var(--ink);line-height:1;letter-spacing:-0.02em;}
-.mtd-cap{font-size:10px;color:var(--muted);margin:5px 0 10px;font-weight:500;}
-.mtd-track{height:7px;background:#f3f4f6;border-radius:4px;overflow:hidden;}
-.mtd-fill{height:100%;border-radius:4px;width:0%;transition:width 0.6s ease;}
-.mtd-foot{margin-top:11px;border-top:1px solid var(--hair);padding-top:9px;}
-.mtd-foot .k{font-size:9.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;}
-.mtd-foot .v{font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;}
-
 .empty{font-size:12px;color:#c4c8ce;padding:6px 0;}
 
 /* ── CONTROLS (not captured in image) ── */
@@ -179,24 +170,8 @@ body{
     <div class="sec">Revenue breakdown</div>
     <div class="panel" id="rev-panel"><div class="empty">No data yet</div></div>
 
-    <div class="g2">
-      <div>
-        <div class="sec">Payments</div>
-        <div class="panel" id="pay-panel"><div class="empty">No data yet</div></div>
-      </div>
-      <div>
-        <div class="sec">Tonight vs month</div>
-        <div class="mtd-panel">
-          <div class="mtd-big" id="mtd-pct-val">—</div>
-          <div class="mtd-cap">of month-to-date</div>
-          <div class="mtd-track"><div class="mtd-fill" id="mtd-bar"></div></div>
-          <div class="mtd-foot">
-            <div class="k">Top category</div>
-            <div class="v" id="best-cat">—</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="sec">Payments</div>
+    <div class="panel" id="pay-panel"><div class="empty">No data yet</div></div>
   </div>
   <!-- /shot -->
 
@@ -263,7 +238,6 @@ function applyTheme(theme){
   pill.style.background = theme.pill;
   pill.style.color = theme.pillText;
   document.getElementById("venue-name").style.color = theme.pillText;
-  document.getElementById("mtd-bar").style.background = theme.bar;
 }
 
 function render(){
@@ -284,17 +258,12 @@ function render(){
   if (S.pax) heroSub.textContent = `${S.pax} covers · AED ${S.avg ? S.avg.toFixed(0) : "—"} avg`;
   else heroSub.innerHTML = "&nbsp;";
 
-  const pct = S.mtd > 0 ? ((S.sale / S.mtd) * 100) : 0;
-  document.getElementById("mtd-pct-val").textContent = S.mtd ? pct.toFixed(1) + "%" : "—";
-  document.getElementById("mtd-bar").style.width = Math.min(pct,100) + "%";
-
   // Revenue breakdown — each bar tinted with the venue colour, fading by rank
   const revItems = [
     {l:"Beverage",v:S.bev},{l:"Food",v:S.food},{l:"Shisha & tob",v:S.shisha},
     {l:"Product",v:S.product},{l:"Show",v:S.show},{l:"Events",v:S.events},{l:"City ledger",v:S.city}
   ].filter(i=>i.v>0).sort((a,b)=>b.v-a.v);
 
-  document.getElementById("best-cat").textContent = revItems[0] ? revItems[0].l : "—";
   const maxR = Math.max(...revItems.map(i=>i.v),1);
   const revHTML = revItems.map((i,idx)=>{
     const op = (1 - idx*0.12).toFixed(2);  // strongest for top earner, fading down
