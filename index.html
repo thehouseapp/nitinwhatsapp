@@ -192,10 +192,11 @@ body{
     <div class="legend">
       <div class="legend-h">Venue colour guide</div>
       <div class="legend-grid">
-        <div class="legend-item"><span class="ld" style="background:#C84B0C;"></span>B&amp;CO — Orange</div>
-        <div class="legend-item"><span class="ld" style="background:#6B3D2E;"></span>Pahadi — Brown</div>
-        <div class="legend-item"><span class="ld" style="background:#B91C1C;"></span>TBSE — Red</div>
-        <div class="legend-item"><span class="ld" style="background:#166534;"></span>Jodhpur — Green</div>
+        <div class="legend-item"><span class="ld" style="background:#E8342B;"></span>Hitchki · Novotel — Red</div>
+        <div class="legend-item"><span class="ld" style="background:#8B4FC9;"></span>Hitchki · Mirdif — Purple</div>
+        <div class="legend-item"><span class="ld" style="background:#F553B0;"></span>Grove House · Pullman — Pink</div>
+        <div class="legend-item"><span class="ld" style="background:#22D3C5;"></span>Grove House · Marina — Aqua</div>
+        <div class="legend-item"><span class="ld" style="background:#F6A15C;"></span>Rajdhani — Coral</div>
       </div>
     </div>
   </div>
@@ -205,10 +206,16 @@ body{
 <script>
 // ─── Venue theme map ──────────────────────────────────────────────
 const VENUE_THEMES = [
-  { keys:["b&co","b & co","bnco","b and co","bco"], header:"#C84B0C", headerDark:"#9A3608", pill:"rgba(0,0,0,0.22)", pillText:"#FFD9C4", bar:"#E8722A" },
-  { keys:["pahadi"],                                  header:"#6B3D2E", headerDark:"#4D2B20", pill:"rgba(0,0,0,0.22)", pillText:"#E5CFC2", bar:"#8B5E4E" },
-  { keys:["tbse","tiger bar stock exchange","tiger bar","tiger stock"], header:"#B91C1C", headerDark:"#881414", pill:"rgba(0,0,0,0.22)", pillText:"#FFC9C9", bar:"#DC2626" },
-  { keys:["jodhpur"],                                 header:"#166534", headerDark:"#0F4424", pill:"rgba(0,0,0,0.22)", pillText:"#C3F5C6", bar:"#16A34A" }
+  // Hitchki - Novotel → RED
+  { keys:["novotel","hitchki - novotel","hitchki novotel"],           header:"#E8342B", headerDark:"#A7251E", pill:"rgba(0,0,0,0.22)", pillText:"#F8C6C3", bar:"#CC2D25" },
+  // Hitchki - Mirdif → VIOLET PURPLE
+  { keys:["mirdif","hitchki - mirdif","hitchki mirdif"],              header:"#8B4FC9", headerDark:"#643890", pill:"rgba(0,0,0,0.22)", pillText:"#DECDEF", bar:"#7A45B0" },
+  // Grove House - Pullman → PINK
+  { keys:["pullman","grove house - pullman","grove house pullman"],   header:"#F553B0", headerDark:"#B03B7E", pill:"rgba(0,0,0,0.22)", pillText:"#FCCEE8", bar:"#D7499A" },
+  // Grove House - Marina → AQUA
+  { keys:["marina","grove house - marina","grove house marina"],      header:"#22D3C5", headerDark:"#18978D", pill:"rgba(0,0,0,0.22)", pillText:"#C1F2EE", bar:"#1DB9AD" },
+  // Rajdhani → CORAL
+  { keys:["rajdhani"],                                                 header:"#F6A15C", headerDark:"#B17342", pill:"rgba(0,0,0,0.22)", pillText:"#FCE4D1", bar:"#D88D50" }
 ];
 const DEFAULT_THEME = { header:"#185FA5", headerDark:"#0C447C", pill:"rgba(0,0,0,0.2)", pillText:"#CFE3F7", bar:"#378ADD" };
 
